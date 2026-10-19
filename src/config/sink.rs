@@ -1,5 +1,3 @@
-#![warn(clippy::pedantic)]
-
 use std::{any::Any, cell::RefCell, path::PathBuf, sync::Arc, time::Duration};
 
 use async_trait::async_trait;
@@ -57,7 +55,6 @@ impl<T: SinkConfig + 'static> From<T> for BoxedSink {
 }
 
 /// Fully resolved sink component.
-#[serde_as]
 #[configurable_component]
 #[derive(Clone, derive_more::Debug)]
 pub struct SinkOuter<T>
@@ -76,8 +73,7 @@ where
     #[configurable(deprecated, metadata(docs::hidden), validation(format = "uri"))]
     pub healthcheck_uri: Option<UriSerde>,
 
-    #[serde(default)]
-    #[serde_as(as = "vector_lib::serde::BoolOrStruct<SinkHealthcheckOptions>")]
+    #[serde(default, deserialize_with = "crate::serde::bool_or_struct")]
     pub healthcheck: SinkHealthcheckOptions,
 
     #[serde(default, skip_serializing_if = "vector_lib::serde::is_default")]
